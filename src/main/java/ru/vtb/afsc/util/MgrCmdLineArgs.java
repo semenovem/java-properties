@@ -1,51 +1,34 @@
 package ru.vtb.afsc.util;
 
-import java.util.ArrayList;
-import javafx.util.Pair;
+import java.util.HashMap;
 
 public class MgrCmdLineArgs {
-  final private ArrayList<Pair<String, String>> parsedList;
+  final private HashMap<String, String> parsedList;
 
   public MgrCmdLineArgs(final String[] args) {
     parsedList = parseArgsToKeyValue(args);
   }
 
   public String getValueByKey(final String findableKey) {
-    for (final Pair<String, String> it : parsedList) {
-      final String key = it.getKey();
-
-      if (key.startsWith(findableKey)) {
-        return it.getValue();
-      }
-    }
-
-    return null;
+    return parsedList.get(findableKey);
   }
 
   public boolean hasKey(final String findableKey) {
-    for (final Pair<String, String> it : parsedList) {
-      final String key = it.getKey();
-
-      if (key.startsWith(findableKey)) {
-        return true;
-      }
-    }
-
-    return false;
+    return parsedList.containsKey(findableKey);
   }
 
-  private static ArrayList<Pair<String, String>> parseArgsToKeyValue(final String[] args) {
-    final ArrayList<Pair<String, String>> parsedList = new ArrayList<>();
+  private static HashMap<String, String> parseArgsToKeyValue(final String[] args) {
+    final HashMap<String, String> parsedList = new HashMap<>();
 
     for (String key : args) {
       if (!key.startsWith("-") || !key.contains("=")) {
-        parsedList.add(new Pair<>(key, null));
+        parsedList.put(key, null);
 
         continue;
       }
 
       String[] a = key.split("=", 2);
-      parsedList.add(new Pair<>(a[0].trim(), a[1].trim()));
+      parsedList.put(a[0].trim(), a[1].trim());
     }
 
     return parsedList;
