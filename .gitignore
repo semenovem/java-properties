@@ -7,4 +7,6 @@
 # Ignore Gradle build output directory
 build
 
+out
+
 
