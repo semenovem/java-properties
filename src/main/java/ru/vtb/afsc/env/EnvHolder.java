@@ -12,10 +12,21 @@ import java.util.HashSet;
 import java.util.Map;
 
 /**
- * Использование: 1. Наследовать класс 2. В нем объявить переменные среды \@Spec(extName =
- * "ENV_HOSTNAME", optional = true, sensitive = false) public static final String HOSTNAME = null;
- * 3. Методом setValues установить значения. Можно вызывать несколько раз. 4. Для проверки, все ли
- * обязательные переменные были установлены - verify
+ * Переменные окружения готовы к использованию до вызова main
+ * Файл конфигурации можно передать:
+ *      - в переменной окружения
+ *      - в аргументах при запуске
+ * Новые значения заменяют предыдущие
+ *
+ *
+ * Использование:
+ * 1. Создать дочерний класс
+ * 2. В нем объявить переменные среды
+ *      \@Spec(extName = "ENV_HOSTNAME", optional = true, sensitive = false)
+ *      public static final String HOSTNAME = null;
+ *
+ * 3. Методом setValues установить значения. Можно вызывать несколько раз.
+ * 4. Для проверки, все ли обязательные переменные были установлены - verify
  *
  * @author semenov esemenov@vtb.ru
  */

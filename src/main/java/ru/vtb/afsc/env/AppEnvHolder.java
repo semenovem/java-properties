@@ -1,7 +1,5 @@
 package ru.vtb.afsc.env;
 
-import javax.annotation.Nullable;
-
 public final class AppEnvHolder extends EnvHolder {
 
     @Spec(extName = "ENV_HOSTNAME", optional = false)
