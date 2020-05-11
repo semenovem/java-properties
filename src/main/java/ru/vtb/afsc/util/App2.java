@@ -2,8 +2,9 @@
 package ru.vtb.afsc.util;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
-import ru.vtb.afsc.env.EnvHolder;
+import java.util.Map;
 import ru.vtb.afsc.env.AppEnvHolder;
 
 import static ru.vtb.afsc.env.AppEnvHolder.HOSTNAME;
@@ -24,13 +25,24 @@ public class App2 {
 //            System.out.println(s);
 //        }
 
-        final boolean success = env.init(listProps);
+        Map<String, String> sys = System.getenv();
+        env.setValues(sys);
+        env.setValues(listProps);
+
+
+
+
+        ArrayList<String> results = env.verify();
+
+        for (String s: results) {
+            System.out.println(s);
+        }
 
         System.out.println("2) " + HOSTNAME);
 
 
 
-        System.out.println("-------------------- toString .... " + ", success init: " + success);
+        System.out.println("-------------------- toString .... " + ", success init: ");
         System.out.println(env);
 //        env.field();
 

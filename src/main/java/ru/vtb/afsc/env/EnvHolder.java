@@ -8,8 +8,21 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
 
+/**
+ * Использование:
+ * 1. Наследовать класс
+ * 2. В нем объявить переменные среды
+ *      \@Spec(extName = "ENV_HOSTNAME", optional = true)
+ *      public static final String HOSTNAME = null;
+ * 3. Методом setValues установить значения.
+ *      Можно вызывать несколько раз.
+ * 4. Для проверки, все ли обязательные переменные были установлены - verify
+ *
+ * @author semenov esemenov@vtb.ru
+ */
 public class EnvHolder {
 
     @Retention(RetentionPolicy.RUNTIME)
@@ -28,37 +41,37 @@ public class EnvHolder {
         boolean optional() default false;
     }
 
-    public boolean init(HashMap<String, String> properties) {
-        ArrayList<Field> fields = getFields();
-        boolean success = true;
+    private final HashSet<String> initializedExtFields = new HashSet<>();
 
-        for (Field field : fields) {
+    public void setValues(final Map<String, String> values) {
+        final ArrayList<Field> fields = getFields();
+
+        for (final Field field : fields) {
             final Spec spec = field.getAnnotation(Spec.class);
-            boolean initialized = false;
+            final String extName = spec.extName();
 
-            String extName = spec.extName();
-
-            if (properties.containsKey(extName)) {
-                initialized = true;
-                setValueToField(field, properties.get(extName));
-            } else {
-                String sysEnvValue = System.getenv(extName);
-
-                if (sysEnvValue != null) {
-                    initialized = true;
-                    setValueToField(field, sysEnvValue);
-                }
-            }
-
-            if (!spec.optional() && !initialized) {
-                success = false;
-                // there logger
-                System.out.println(
-                    "ERROR: " + field.getName() + " обязательное поле не инициализировано");
+            if (values.containsKey(extName)) {
+                setValueToField(field, values.get(extName));
+                initializedExtFields.add(extName);
             }
         }
+    }
 
-        return success;
+    public ArrayList<String> verify() {
+        final ArrayList<String> results = new ArrayList<>();
+        final ArrayList<Field> fields = getFields();
+
+        boolean optional;
+        for (Field field : fields) {
+            final Spec spec = field.getAnnotation(Spec.class);
+            final String extName = spec.extName();
+            optional = spec.optional();
+
+            if (!optional && !initializedExtFields.contains(extName)) {
+                results.add("Не установлена обязательная переменная окружения: " + extName);
+            }
+        }
+        return results;
     }
 
     @Override
@@ -78,17 +91,6 @@ public class EnvHolder {
         return Arrays.toString(strings);
     }
 
-    private String[] getExtPropNames() {
-        ArrayList<Field> fields = getFields();
-        String[] propNames = new String[fields.size()];
-
-        for (int i = 0; i < propNames.length; i++) {
-            propNames[i] = fields.get(i).getAnnotation(Spec.class).extName();
-        }
-
-        return propNames;
-    }
-
     private ArrayList<Field> getFields() {
         final Field[] fields = getClass().getFields();
         final ArrayList<Field> resultFields = new ArrayList<>();
@@ -102,16 +104,13 @@ public class EnvHolder {
         return resultFields;
     }
 
-    private void setValueToField(Field field, String value) {
+    private void setValueToField(final Field field, final String value) {
         try {
             field.setAccessible(true);
 
-            Field modifiersField = Field.class.getDeclaredField("modifiers");
+            final Field modifiersField = Field.class.getDeclaredField("modifiers");
             modifiersField.setAccessible(true);
             modifiersField.setInt(field, field.getModifiers() & ~Modifier.FINAL);
-
-            String c = field.getType().getName();
-            System.out.println(field + " --- " + value + "   " + c);
 
             try {
                 switch (field.getType().getName()) {
@@ -165,13 +164,13 @@ public class EnvHolder {
                         // there logger
                         System.out.println("ERROR не поддерживаем такой тип значения");
                 }
-            } catch (Exception ex) {
+            } catch (final Exception ex) {
                 System.out.println("ERROR при изменении значения поля");
                 ex.printStackTrace();
             }
 
             field.setAccessible(false);
-        } catch (Exception ex) {
+        } catch (final IllegalAccessException | NoSuchFieldException ex) {
             System.out.println("ERROR при изменении уровня доступа к полю");
             ex.printStackTrace();
         }

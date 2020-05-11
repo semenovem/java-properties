@@ -4,7 +4,7 @@ import javax.annotation.Nullable;
 
 public final class AppEnvHolder extends EnvHolder {
 
-    @Spec(extName = "ENV_HOSTNAME", optional = true)
+    @Spec(extName = "ENV_HOSTNAME", optional = false)
     public static final String HOSTNAME = null;
 //
 //    @Spec(extName = "ENV_HOSTNAME_BOOLEAN", optional = true)
