@@ -1,8 +1,12 @@
 
 package ru.vtb.afsc.util;
 
+import java.lang.reflect.Method;
+import java.util.Arrays;
 import ru.vtb.afsc.cli.ArgumentParser;
 import ru.vtb.afsc.cli.ArgumentParser.Option;
+
+import java.lang.Class.*;
 
 public class App1 {
     public String getGreeting() {
@@ -11,10 +15,19 @@ public class App1 {
 
     public static void main(String[] args) {
 
-        String[] s = {"--config", "--help"};
-
-
+        String[] s = {"--config", "help"};
         ArgumentParser cmd = new ArgumentParser(s);
+
+
+        Method[] methods = ArgumentParser.class.getMethods();
+
+        for (Method m: methods) {
+            System.out.println(m.getName());
+        }
+
+
+
+        System.exit(0);
 
         cmd.man();
 
