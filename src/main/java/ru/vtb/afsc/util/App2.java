@@ -12,7 +12,7 @@ import static ru.vtb.afsc.env.AppEnvHolder.HOSTNAME;
 public class App2 {
     public static void main(String[] args) throws IOException {
         MgrProperties props = new MgrProperties("/Users/evg/_dev/java/prop/src/main/resources/config.properties");
-        HashMap<String, String> listProps = props.getAll();
+        Map<String, String> listProps = props.getAll();
 
         System.out.println("1) " + HOSTNAME + " " + props.getProp("ENV_HOSTNAME"));
 

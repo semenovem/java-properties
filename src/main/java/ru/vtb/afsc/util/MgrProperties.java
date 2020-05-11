@@ -1,10 +1,10 @@
 package ru.vtb.afsc.util;
 
-import com.google.common.collect.Lists;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Enumeration;
+import java.util.Map;
 import java.util.Properties;
 import java.util.HashMap;
 
@@ -13,9 +13,8 @@ public class MgrProperties {
     private final Properties properties = new Properties();
 
     public MgrProperties(final String propertiesFilePath) throws IOException {
-        try (InputStream input = new FileInputStream(propertiesFilePath)) {
-            properties.load(input);
-        }
+        final InputStream input = new FileInputStream(propertiesFilePath);
+        properties.load(input);
     }
 
     public String getProp(final String propName) {
@@ -26,7 +25,7 @@ public class MgrProperties {
         return properties.getProperty(propName, defaultValue);
     }
 
-    public HashMap<String, String> getAll() {
+    public Map<String, String> getAll() {
         final Enumeration<?> e = properties.propertyNames();
         final HashMap<String, String> list = new HashMap<>();
 
