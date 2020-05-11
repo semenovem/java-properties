@@ -12,9 +12,18 @@ public class MgrProperties {
 
     private final Properties properties = new Properties();
 
-    public MgrProperties(final String propertiesFilePath) throws IOException {
-        final InputStream input = new FileInputStream(propertiesFilePath);
-        properties.load(input);
+    public MgrProperties(final String filePath) throws IOException {
+        loadPropertyFile(filePath);
+    }
+
+    public MgrProperties(final String ... filePaths) throws IOException {
+        for (final String filePath: filePaths) {
+            if (filePath == null || filePath.isEmpty()) {
+                continue;
+            }
+            loadPropertyFile(filePath);
+            break;
+        }
     }
 
     public String getProp(final String propName) {
@@ -36,5 +45,10 @@ public class MgrProperties {
         }
 
         return list;
+    }
+
+    private void loadPropertyFile(final String filePath) throws IOException {
+        final InputStream input = new FileInputStream(filePath);
+        properties.load(input);
     }
 }
