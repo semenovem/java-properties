@@ -12,14 +12,10 @@ import java.util.HashSet;
 import java.util.Map;
 
 /**
- * Использование:
- * 1. Наследовать класс
- * 2. В нем объявить переменные среды
- *      \@Spec(extName = "ENV_HOSTNAME", optional = true)
- *      public static final String HOSTNAME = null;
- * 3. Методом setValues установить значения.
- *      Можно вызывать несколько раз.
- * 4. Для проверки, все ли обязательные переменные были установлены - verify
+ * Использование: 1. Наследовать класс 2. В нем объявить переменные среды \@Spec(extName =
+ * "ENV_HOSTNAME", optional = true, sensitive = false) public static final String HOSTNAME = null;
+ * 3. Методом setValues установить значения. Можно вызывать несколько раз. 4. Для проверки, все ли
+ * обязательные переменные были установлены - verify
  *
  * @author semenov esemenov@vtb.ru
  */
@@ -39,6 +35,11 @@ public class EnvHolder {
          * умолчанию) выкинем ошибку
          */
         boolean optional() default false;
+
+        /**
+         * Секретные данные, пароли etc закрыть звездочками значения таких полей при выводе в лог
+         */
+        boolean sensitive() default false;
     }
 
     private final HashSet<String> initializedExtFields = new HashSet<>();
@@ -78,12 +79,16 @@ public class EnvHolder {
     public String toString() {
         final ArrayList<Field> fields = getFields();
         final String[] strings = new String[fields.size()];
+        boolean sens;
 
         for (int i = 0; i < strings.length; i++) {
             final Field field = fields.get(i);
             try {
-                strings[i] = (i == 0 ? "" : "\n") + field.getName() + "=" + field.get(this);
-            } catch (IllegalAccessException e) {
+                sens = field.getAnnotation(Spec.class).sensitive();
+
+                strings[i] = (i == 0 ? "" : "\n") + field.getName() + "=" + (sens ? "******"
+                    : field.get(this));
+            } catch (final IllegalAccessException e) {
                 e.printStackTrace();
             }
         }
@@ -114,57 +119,55 @@ public class EnvHolder {
 
             try {
                 switch (field.getType().getName()) {
-                    case "java.lang.String":
-                        field.set(null, value);
-                        break;
+                case "java.lang.String":
+                    field.set(null, value);
+                    break;
 
-                    case "java.lang.Integer":
-                    case "int":
-                        field.setInt(null, Integer.parseInt(value));
-                        break;
+                case "java.lang.Integer":
+                case "int":
+                    field.setInt(null, Integer.parseInt(value));
+                    break;
 
-                    case "java.lang.Long":
-                    case "long":
-                        field.set(null, Long.parseLong(value));
-                        break;
+                case "java.lang.Long":
+                case "long":
+                    field.set(null, Long.parseLong(value));
+                    break;
 
-                    case "java.lang.Boolean":
-                    case "boolean":
-                        field.set(null, Boolean.parseBoolean(value));
-                        break;
+                case "java.lang.Boolean":
+                case "boolean":
+                    field.set(null, Boolean.parseBoolean(value));
+                    break;
 
+                case "java.lang.Byte":
+                case "byte":
+                    field.set(null, Byte.parseByte(value));
+                    break;
 
-                    case "java.lang.Byte":
-                    case "byte":
-                        field.set(null, Byte.parseByte(value));
-                        break;
+                case "java.lang.Short":
+                case "short":
+                    field.set(null, Short.parseShort(value));
+                    break;
 
+                case "java.lang.Float":
+                case "float":
+                    field.set(null, Float.parseFloat(value));
+                    break;
 
-                    case "java.lang.Short":
-                    case "short":
-                        field.set(null, Short.parseShort(value));
-                        break;
+                case "java.lang.Double":
+                case "double":
+                    field.set(null, Double.parseDouble(value));
+                    break;
 
-                    case "java.lang.Float":
-                    case "float":
-                        field.set(null, Float.parseFloat(value));
-                        break;
+                case "java.lang.Character":
+                case "char":
+                    field.setChar(null, value.charAt(0));
+                    break;
 
-                    case "java.lang.Double":
-                    case "double":
-                        field.set(null, Double.parseDouble(value));
-                        break;
-
-                    case "java.lang.Character":
-                    case "char":
-                        field.setChar(null, value.charAt(0));
-                        break;
-
-                    default:
-                        // there logger
-                        System.out.println("ERROR не поддерживаем такой тип значения");
+                default:
+                    // there logger
+                    System.out.println("ERROR не поддерживаем такой тип значения");
                 }
-            } catch (final Exception ex) {
+            } catch (final RuntimeException ex) {
                 System.out.println("ERROR при изменении значения поля");
                 ex.printStackTrace();
             }

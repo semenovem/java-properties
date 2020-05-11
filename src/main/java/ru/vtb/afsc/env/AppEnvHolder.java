@@ -31,7 +31,7 @@ public final class AppEnvHolder extends EnvHolder {
     public static final short H_SHORT = 0;
 
 
-    @Spec(extName = "ENV_H_FLOAT", optional = true)
+    @Spec(extName = "ENV_H_FLOAT", optional = true, sensitive = true)
     public static final float H_FLOAT = 0;
 
 
