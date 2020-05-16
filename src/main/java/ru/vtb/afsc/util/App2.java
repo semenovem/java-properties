@@ -3,21 +3,52 @@ package ru.vtb.afsc.util;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Map;
-import ru.vtb.afsc.env.AppEnvHolder;
+import ru.vtb.afsc.env.EnvDebug;
+import ru.vtb.afsc.env.EnvVariable;
+import ru.vtb.afsc.env.EnvEngine;
 
-import static ru.vtb.afsc.env.AppEnvHolder.HOSTNAME;
 
 public class App2 {
-    public static void main(String[] args) throws IOException {
+
+    @EnvVariable(name = "ENV_HOSTNAME_STRING")
+    private static String testVariable;
+
+    @EnvVariable(name = "ENV_HOSTNAME_INT")
+    private static int testVariableInt;
+
+
+
+    public static void main(String[] args) throws IOException, IllegalAccessException {
+
+        System.out.println(EnvDebug.showUse(App2.class));
+
+
+
+        EnvEngine.set(System.getenv(), App2.class);
+
         MgrProperties props = new MgrProperties("/Users/evg/_dev/java/prop/src/main/resources/config.properties");
         Map<String, String> listProps = props.getAll();
 
-        System.out.println("1) " + HOSTNAME + " " + props.getProp("ENV_HOSTNAME"));
+        EnvEngine.set(listProps, App2.class);
 
 
-        AppEnvHolder env = new AppEnvHolder();
+        System.out.println(EnvDebug.showUse(App2.class));
+
+
+
+        System.out.println("-------------------");
+        System.out.println("-------------------");
+
+        ArrayList<String> res = EnvEngine.verify(App2.class);
+
+        System.out.println(res);
+
+
+
+
+
+//        AppEnvHolder env = new AppEnvHolder();
 
 //        String[] propNames = env.getExtPropNames();
 //
@@ -25,29 +56,16 @@ public class App2 {
 //            System.out.println(s);
 //        }
 
-        Map<String, String> sys = System.getenv();
-        env.setValues(sys);
-        env.setValues(listProps);
+//        Map<String, String> sys = System.getenv();
+//        env.setValues(sys);
+//        env.setValues(listProps);
 
 
 
 
-        ArrayList<String> results = env.verify();
-
-        for (String s: results) {
-            System.out.println(s);
-        }
-
-        System.out.println("2) " + HOSTNAME);
-
-
-
-        System.out.println("-------------------- toString .... " + ", success init: ");
-        System.out.println(env);
-//        env.field();
-
+//        ArrayList<String> results = env.verify();
+//        for (String s: results) {
+//            System.out.println(s);
+//        }
     }
-
-
-
 }
